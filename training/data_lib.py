@@ -79,6 +79,7 @@ def _parse_example(sample):
       'path': features['path'],
   }
 
+  print(output_dict)
   return output_dict
 
 
@@ -190,8 +191,13 @@ def _create_from_sharded_tfrecord(batch_size,
                                   crop_size,
                                   max_examples=-1) -> tf.data.Dataset:
   """Creates a dataset from a sharded tfrecord."""
-  dataset = tf.data.Dataset.from_tensor_slices(
-      _generate_sharded_filenames(file))
+
+  filenames = _generate_sharded_filenames(file)
+  print("Generated shard filenames:", filenames)
+  print("Number of shards:", len(filenames))
+  dataset = tf.data.Dataset.from_tensor_slices(filenames)
+  # dataset = tf.data.Dataset.from_tensor_slices(
+  #     _generate_sharded_filenames(file))
 
   # pylint: disable=g-long-lambda
   dataset = dataset.interleave(
@@ -204,6 +210,7 @@ def _create_from_sharded_tfrecord(batch_size,
       deterministic=not train_mode)
   # pylint: enable=g-long-lambda
   dataset = dataset.prefetch(buffer_size=2)
+  print(dataset)
   if max_examples > 0:
     return dataset.take(max_examples)
   return dataset

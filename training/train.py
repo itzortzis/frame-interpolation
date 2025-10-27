@@ -111,6 +111,8 @@ def main(argv):
   train_folder = os.path.join(_BASE_FOLDER.value, _LABEL.value, 'train')
   eval_folder = os.path.join(_BASE_FOLDER.value, _LABEL.value, 'eval')
 
+  print(train_folder)
+
   train_lib.train(
       strategy=train_lib.get_strategy(_MODE.value),
       train_folder=train_folder,

@@ -18,6 +18,7 @@ from typing import Any, Callable, Dict, Text, Tuple
 
 from absl import logging
 import tensorflow as tf
+import wandb
 
 
 def _concat_tensors(tensors: tf.Tensor) -> tf.Tensor:
@@ -74,6 +75,7 @@ def _distributed_train_step(strategy: tf.distribute.Strategy,
   y = _concat_tensors(step_outputs['y'])
   pred_y = _concat_tensors(step_outputs['image'])
 
+  print(loss)
   scalar_summaries = {'training_loss': loss}
 
   image_summaries = {
@@ -220,8 +222,12 @@ def train_loop(
 
   # Re-assign training_finished=False, in case we restored a checkpoint.
   checkpoint.training_finished.assign(False)
+
+  
   while optimizer.iterations.numpy() < num_iterations:
-    for i_batch, batch in enumerate(train_set):
+    iterator = iter(train_set)
+    for i_batch, batch in enumerate(iterator):
+      
       summary_writer.set_as_default()
       iterations = optimizer.iterations.numpy()
 
@@ -238,6 +244,8 @@ def train_loop(
       # Compute distributed step outputs.
       distributed_step_outputs = distributed_train_step_fn(
           strategy, batch, model, loss_functions, optimizer, iterations)
+      
+      wandb.log({"train_loss": distributed_step_outputs['loss']})
 
       # Save checkpoint, and optionally run the eval loops.
       if iterations % save_checkpoint_frequency == 0:
@@ -311,6 +319,15 @@ def train(strategy: tf.distribute.Strategy, train_folder: str,
       will be saved.
     eval_datasets: The tensorflow evaluation dataset objects.
   """
+  wandb.init(
+    project="film-training",
+    name="my_custom_run",
+    config={
+      "learning_rate": 0.0001,
+      "batch_size": 8,
+      "num_steps": 1,
+    },
+  )
   train_loop(
       strategy=strategy,
       train_set=dataset,

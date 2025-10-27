@@ -1,3 +1,21 @@
+
+# How to build and run a proper Docker container with all dependencies installed:
+
+1. ```sh
+   docker build -t film .
+   ```
+
+2. ```sh
+   docker run --rm --gpus all film
+   ```
+
+3. Inside the container, validate NVIDIA drivers and cuda:
+   ```sh
+   nvcc --version
+   nvidia-smi
+   ```
+
+
 # FILM: Frame Interpolation for Large Motion
 
 ### [Website](https://film-net.github.io/) | [Paper](https://arxiv.org/pdf/2202.04901.pdf) | [Google AI Blog](https://ai.googleblog.com/2022/10/large-motion-frame-interpolation.html) | [Tensorflow Hub Colab](https://www.tensorflow.org/hub/tutorials/tf_hub_film_example) | [YouTube](https://www.youtube.com/watch?v=OAD-BieIjH4) <br>

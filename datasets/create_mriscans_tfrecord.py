@@ -84,10 +84,25 @@ Usage example:
     --input_triplet_list_filepath=<filepath of tri_{test|train}list.txt> \
     --output_tfrecord_filepath=<output tfrecord filepath>
 """
+"""
+python3 -m datasets.create_mriscans_tfrecord \
+    --input_dir=/mnt/neverland/itzo/film/mini_dataset \
+    --input_triplet_list_filepath=/mnt/neverland/itzo/film/mini_dataset/training_set.txt \
+    --output_tfrecord_filepath=./my_datasets/tf_records.tfrecord
+"""
+
+"""
+python3 -m datasets.create_mriscans_tfrecord \
+    --input_dir=/mnt/neverland/itzo/film/vimeo/vimeo_interp_test/target \
+    --input_triplet_list_filepath=/mnt/neverland/itzo/film/vimeo/vimeo_interp_test/tri_testlist.txt \
+    --output_tfrecord_filepath=./my_datasets/tf_records.tfrecord
+"""
+    
+    
 import os
 
 # from . import util
-import util as util
+import datasets.util as util
 from absl import app
 from absl import flags
 from absl import logging
@@ -127,15 +142,23 @@ _OUTPUT_TFRECORD_FILEPATH = flags.DEFINE_string(
     help='Filepath to the output TFRecord file.')
 
 _NUM_SHARDS = flags.DEFINE_integer('num_shards',
-    default=200, # set to 3 for vimeo_test, and 200 for vimeo_train.
+    default=10, # set to 3 for vimeo_test, and 200 for vimeo_train.
     help='Number of shards used for the output.')
 
 # Image key -> basename for frame interpolator: start / middle / end frames.
+# _INTERPOLATOR_IMAGES_MAP = {
+#     'frame_0': 'im1.png',
+#     'frame_1': 'im2.png',
+#     'frame_2': 'im3.png',
+# }
+
 _INTERPOLATOR_IMAGES_MAP = {
-    'frame_0': 'im1.png',
-    'frame_1': 'im2.png',
-    'frame_2': 'im3.png',
+    'frame_0': 'img_0.png',
+    'frame_1': 'img_1.png',
+    'frame_2': 'img_2.png',
 }
+
+
 
 
 def main(unused_argv):
@@ -149,6 +172,7 @@ def main(unused_argv):
         image_key: os.path.join(_INPUT_DIR.value, triplet, image_basename)
         for image_key, image_basename in _INTERPOLATOR_IMAGES_MAP.items()
     }
+    print(triplet_dict)
     triplet_dicts.append(triplet_dict)
   p = beam.Pipeline('DirectRunner')
   (p | 'ReadInputTripletDicts' >> beam.Create(triplet_dicts)  # pylint: disable=expression-not-assigned
