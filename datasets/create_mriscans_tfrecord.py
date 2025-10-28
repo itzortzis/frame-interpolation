@@ -97,6 +97,27 @@ python3 -m datasets.create_mriscans_tfrecord \
     --input_triplet_list_filepath=/mnt/neverland/itzo/film/vimeo/vimeo_interp_test/tri_testlist.txt \
     --output_tfrecord_filepath=./my_datasets/tf_records.tfrecord
 """
+
+
+
+
+
+"""
+python3 -m datasets.create_mriscans_tfrecord \
+    --input_dir=/mnt/neverland/itzo/film/dataset \
+    --input_triplet_list_filepath=/mnt/neverland/itzo/film/dataset/training_set.txt \
+    --output_tfrecord_filepath=./my_datasets/train_2500/tf_records.tfrecord \
+    --num_shards=300
+"""
+
+"""
+python3 -m datasets.create_mriscans_tfrecord \
+    --input_dir=/mnt/neverland/itzo/film/dataset \
+    --input_triplet_list_filepath=/mnt/neverland/itzo/film/dataset/validation_set.txt \
+    --output_tfrecord_filepath=./my_datasets/eval_2500/tf_records.tfrecord \
+    --num_shards=20
+"""
+
     
     
 import os
@@ -142,7 +163,7 @@ _OUTPUT_TFRECORD_FILEPATH = flags.DEFINE_string(
     help='Filepath to the output TFRecord file.')
 
 _NUM_SHARDS = flags.DEFINE_integer('num_shards',
-    default=10, # set to 3 for vimeo_test, and 200 for vimeo_train.
+    default=200, # set to 3 for vimeo_test, and 200 for vimeo_train.
     help='Number of shards used for the output.')
 
 # Image key -> basename for frame interpolator: start / middle / end frames.

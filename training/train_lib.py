@@ -18,7 +18,7 @@ from typing import Any, Callable, Dict, Text, Tuple
 
 from absl import logging
 import tensorflow as tf
-import wandb
+# import wandb
 
 
 def _concat_tensors(tensors: tf.Tensor) -> tf.Tensor:
@@ -215,6 +215,14 @@ def train_loop(
   timer = tf.estimator.SecondOrStepTimer(every_steps=timing_frequency)
   timer.update_last_triggered_step(optimizer.iterations.numpy())
 
+  # gpus = tf.config.list_physical_devices('GPU')
+  # if gpus:
+  #   try:
+  #       tf.config.set_visible_devices(gpus[1], 'GPU') 
+  #       tf.config.experimental.set_memory_growth(gpus[1], True)
+  #   except RuntimeError as e:
+  #       logging.error("RuntimeError setting GPU visibility: %s", e)
+
   logging.info('Training on devices: %s.', [
       el.name.split('/physical_device:')[-1]
       for el in tf.config.get_visible_devices()
@@ -245,7 +253,7 @@ def train_loop(
       distributed_step_outputs = distributed_train_step_fn(
           strategy, batch, model, loss_functions, optimizer, iterations)
       
-      wandb.log({"train_loss": distributed_step_outputs['loss']})
+      # wandb.log({"train_loss": distributed_step_outputs['loss']})
 
       # Save checkpoint, and optionally run the eval loops.
       if iterations % save_checkpoint_frequency == 0:
@@ -319,15 +327,15 @@ def train(strategy: tf.distribute.Strategy, train_folder: str,
       will be saved.
     eval_datasets: The tensorflow evaluation dataset objects.
   """
-  wandb.init(
-    project="film-training",
-    name="my_custom_run",
-    config={
-      "learning_rate": 0.0001,
-      "batch_size": 8,
-      "num_steps": 1,
-    },
-  )
+  # wandb.init(
+  #   project="film-training",
+  #   name="my_custom_run",
+  #   config={
+  #     "learning_rate": 0.0001,
+  #     "batch_size": 8,
+  #     "num_steps": 1,
+  #   },
+  # )
   train_loop(
       strategy=strategy,
       train_set=dataset,
@@ -344,8 +352,8 @@ def train(strategy: tf.distribute.Strategy, train_folder: str,
       train_folder=train_folder,
       saved_model_folder=saved_model_folder,
       num_iterations=n_iterations,
-      save_summaries_frequency=3000,
-      save_checkpoint_frequency=3000)
+      save_summaries_frequency=100,
+      save_checkpoint_frequency=100)
 
 
 def get_strategy(mode) -> tf.distribute.Strategy:
@@ -354,7 +362,7 @@ def get_strategy(mode) -> tf.distribute.Strategy:
   if mode == 'cpu':
     strategy = tf.distribute.OneDeviceStrategy('/cpu:0')
   elif mode == 'gpu':
-    strategy = tf.distribute.MirroredStrategy()
+    strategy = tf.distribute.OneDeviceStrategy('/gpu:0')
   else:
     raise ValueError('Unsupported distributed mode.')
   return strategy

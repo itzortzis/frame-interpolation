@@ -29,6 +29,13 @@ To debug the training loop on CPU:
       --label test_run \
       --mode cpu
 
+
+  python3 -m film.training.train \
+      --gin_config film/training/config/film_net-L1.gin \
+      --base_folder ./experiments \
+      --label atlas_training_1500 \
+      --mode gpu
+
 The training output directory will be created at <base_folder>/<label>.
 """
 import os
