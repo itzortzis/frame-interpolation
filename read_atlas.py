@@ -10,11 +10,11 @@ import matplotlib.pyplot as plt
 
 
 DATASET_ROOT = "/mnt/neverland/ATLAS"
-OUT_DATASET = "/mnt/neverland/itzo/film/mini_dataset"
+OUT_DATASET = "/mnt/neverland/itzo/film/dataset"
 
 patients = os.listdir(DATASET_ROOT)
 
-for i in tqdm(range(10)):
+for i in tqdm(range(len(patients))):
 
     
 
