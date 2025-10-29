@@ -53,4 +53,4 @@ CMD ["bash", "-c", \
 
 
 # docker build -t film .
-# docker run -d --gpus all --rm -v /mnt/neverland/itzo/frame-interpolation/experiments:/app/experiments -e LABEL=atlas_train_1500_steps_5000 -it film
+# docker run -d --gpus all --rm -v /mnt/neverland/itzo/frame-interpolation/experiments:/app/experiments -e LABEL=atlas_train_2500_steps_20000 -it film
