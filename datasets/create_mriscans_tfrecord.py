@@ -118,6 +118,26 @@ python3 -m datasets.create_mriscans_tfrecord \
     --num_shards=20
 """
 
+"""
+python3 -m datasets.create_mriscans_tfrecord \
+    --input_dir=/mnt/neverland/itzo/film/gray_dataset \
+    --input_triplet_list_filepath=/mnt/neverland/itzo/film/gray_dataset/training_set.txt \
+    --output_tfrecord_filepath=./my_datasets/gray_train/tf_records.tfrecord \
+    --num_shards=40
+"""
+
+"""
+python3 -m datasets.create_mriscans_tfrecord \
+    --input_dir=/mnt/neverland/itzo/film/gray_dataset \
+    --input_triplet_list_filepath=/mnt/neverland/itzo/film/gray_dataset/validation_set.txt \
+    --output_tfrecord_filepath=./my_datasets/gray_eval/tf_records.tfrecord \
+    --num_shards=10
+"""
+
+"""
+find . -mindepth 2 -maxdepth 2 -type d | sed 's|^\./||'
+"""
+
     
     
 import os

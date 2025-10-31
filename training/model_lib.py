@@ -44,9 +44,9 @@ def _create_film_net_model() -> tf.keras.Model:
   options = film_net_options.Options()
 
   x0 = tf.keras.Input(
-      shape=(None, None, 3), batch_size=None, dtype=tf.float32, name='x0')
+      shape=(None, None, 1), batch_size=None, dtype=tf.float32, name='x0')
   x1 = tf.keras.Input(
-      shape=(None, None, 3), batch_size=None, dtype=tf.float32, name='x1')
+      shape=(None, None, 1), batch_size=None, dtype=tf.float32, name='x1')
   time = tf.keras.Input(
       shape=(1,), batch_size=None, dtype=tf.float32, name='time')
 

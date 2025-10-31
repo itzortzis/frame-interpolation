@@ -39,15 +39,15 @@ ENV LABEL=atlas_training_1500
 # python3 -m film.training.train \
 #   --gin_config film/training/config/film_net-L1.gin \
 #   --base_folder ./experiments \
-#   --label atlas_train_1500_steps_5000
+#   --label testtest
 #   --mode gpu
 
-CMD ["bash", "-c", \
-     "python3 -m film.training.train \
-     --gin_config film/training/config/film_net-L1.gin \
-     --base_folder ./experiments \
-     --label ${LABEL} \
-     --mode gpu"]
+# CMD ["bash", "-c", \
+#      "python3 -m film.training.train \
+#      --gin_config film/training/config/film_net-L1.gin \
+#      --base_folder ./experiments \
+#      --label ${LABEL} \
+#      --mode gpu"]
 
 
 

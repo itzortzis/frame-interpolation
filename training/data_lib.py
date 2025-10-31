@@ -107,7 +107,7 @@ def crop_example(example: tf.Tensor, crop_size: int,
   """
   if crop_keys is None:
     crop_keys = ['x0', 'x1', 'y']
-    channels = [3, 3, 3]
+    channels = [1, 1, 1]
 
   # Stack images along channel axis, and perform a random crop once.
   image_to_crop = [example[key] for key in crop_keys]

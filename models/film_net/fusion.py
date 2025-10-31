@@ -50,7 +50,7 @@ def _relu(x: tf.Tensor) -> tf.Tensor:
   return tf.nn.leaky_relu(x, alpha=0.2)
 
 
-_NUMBER_OF_COLOR_CHANNELS = 3
+_NUMBER_OF_COLOR_CHANNELS = 1
 
 
 class Fusion(tf.keras.layers.Layer):
