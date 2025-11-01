@@ -1,0 +1,3 @@
+[submodule "medical-net"]
+	path = medical-net
+	url = git@github.com:itzortzis/MedicalNet.git
