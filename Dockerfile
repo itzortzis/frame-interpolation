@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y \
     git \
     wget \
     curl \
+    libgl1-mesa-glx libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
-
 
 WORKDIR /app/film
 COPY . /app/film
@@ -30,17 +30,19 @@ WORKDIR /app
 
 ENV LABEL=atlas_training_1500
 
+RUN pip install --upgrade typing_extensions
+
 # CMD ["python3", "-m", "film.training.train", \
 #      "--gin_config", "film/training/config/film_net-L1.gin", \
 #      "--base_folder", "./experiments", \
 #      "--label", ${LABEL}, \
 #      "--mode", "gpu"]
 
-# python3 -m film.training.train \
-#   --gin_config film/training/config/film_net-L1.gin \
-#   --base_folder ./experiments \
-#   --label testtest
-#   --mode gpu
+python3 -m film.training.train \
+  --gin_config film/training/config/film_net-L1.gin \
+  --base_folder ./experiments \
+  --label testtest \
+  --mode gpu
 
 # CMD ["bash", "-c", \
 #      "python3 -m film.training.train \
@@ -54,3 +56,4 @@ ENV LABEL=atlas_training_1500
 
 # docker build -t film .
 # docker run -d --gpus all --rm -v /mnt/neverland/itzo/frame-interpolation/experiments:/app/experiments -e LABEL=atlas_train_2500_steps_20000 -it film
+# docker run --gpus all --rm -v /mnt/neverland/itzo/frame-interpolation/experiments:/app/experiments -e LABEL=atlas_train_2500_steps_20000 -it film

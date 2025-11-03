@@ -18,8 +18,70 @@ from typing import Any, Callable, Dict, Text, Tuple
 
 from absl import logging
 import tensorflow as tf
+from ..medical_net.single_inference import FeatureExtractor
 # import wandb
+import torch
+import numpy as np
 
+med_features_extractor = FeatureExtractor()
+
+
+
+def _pt_feat_grad_and_loss(pred_np, y_np):
+
+    pred_np = np.array(pred_np)
+    y_np = np.array(y_np)
+    
+    pred_pt = torch.tensor(pred_np, dtype=torch.float32, requires_grad=True)
+    
+    # Reshape: (B, H, W, 1) -> (B, 1, 1, H, W) for MedicalNet
+    pred_pt = pred_pt.squeeze(-1).unsqueeze(1).unsqueeze(2) 
+    pred_pt.retain_grad()
+    
+    y_pt = torch.tensor(y_np, dtype=torch.float32)
+    y_pt = y_pt.squeeze(-1).unsqueeze(1).unsqueeze(2)
+    
+    # Forward Pass
+    feat_pred = med_features_extractor.extract_features(pred_pt)
+    feat_gt = med_features_extractor.extract_features(y_pt)
+
+    loss_pt = torch.nn.functional.l1_loss(feat_pred, feat_gt)
+    
+    # Backward Pass
+    loss_pt.backward()
+    
+    # 4. Extract Gradient and Loss
+    grad_np = pred_pt.grad.squeeze(1).squeeze(1).detach().cpu().numpy()  # (B, H, W)
+    grad_np = grad_np[..., np.newaxis] # (B, H, W, 1) - Back to TF format
+
+    scalar_loss_np = loss_pt.detach().cpu().numpy()
+    
+    return scalar_loss_np, grad_np
+
+
+@tf.custom_gradient
+def py_function_feature_loss(pred_tf, gt_tf):
+    """
+    Computes a scalar feature loss and defines its custom gradient.
+    """
+    # Call the refactored PyTorch function
+    scalar_loss_tensor, grad_feat_tf = tf.py_function(
+        func=_pt_feat_grad_and_loss, 
+        inp=[pred_tf, gt_tf],
+        Tout=[tf.float32, tf.float32] 
+    )
+    
+    scalar_loss_tensor.set_shape([])
+    grad_feat_tf.set_shape(pred_tf.shape)
+
+    # The backward function (grad_fn)
+    def grad_fn(dy):
+        # dy is the scalar gradient from the rest of the graph (should be 1.0 here).
+        # Gradient w.r.t. pred_tf is the pre-calculated PyTorch gradient, scaled by dy.
+        # Gradient w.r.t. gt_tf (ground truth) is zero, as it's not a model output.
+        return grad_feat_tf * dy, tf.zeros_like(gt_tf)
+
+    return scalar_loss_tensor, grad_fn
 
 def _concat_tensors(tensors: tf.Tensor) -> tf.Tensor:
   """Concat tensors of the different replicas."""
@@ -56,7 +118,16 @@ def _distributed_train_step(strategy: tf.distribute.Strategy,
       losses = []
       for (loss_value, loss_weight) in loss_functions.values():
         losses.append(loss_value(batch, predictions) * loss_weight(iterations))
-      loss = tf.add_n(losses)
+      tf_loss = tf.add_n(losses)
+      
+
+      feat_loss = py_function_feature_loss(
+          predictions['image'],
+          batch['y']
+      )
+      
+      loss = tf_loss + feat_loss
+      
     grads = tape.gradient(loss, model.trainable_variables)
     optimizer.apply_gradients(zip(grads, model.trainable_variables))
     # post process for visualization
