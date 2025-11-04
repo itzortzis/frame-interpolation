@@ -14,7 +14,7 @@ OUT_DATASET = "/mnt/neverland/itzo/film/gray_dataset"
 
 patients = os.listdir(DATASET_ROOT)
 
-for i in tqdm(range(100)):
+for i in tqdm(range(len(patients))):
 
     
 
