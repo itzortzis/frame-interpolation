@@ -44,16 +44,16 @@ RUN pip install --upgrade typing_extensions
 #   --label testtest \
 #   --mode gpu
 
-# CMD ["bash", "-c", \
-#      "python3 -m film.training.train \
-#      --gin_config film/training/config/film_net-L1.gin \
-#      --base_folder ./experiments \
-#      --label ${LABEL} \
-#      --mode gpu"]
+CMD ["bash", "-c", \
+     "python3 -m film.training.train \
+     --gin_config film/training/config/film_net-Style.gin \
+     --base_folder ./experiments \
+     --label ${LABEL} \
+     --mode gpu"]
 
 
 
 
 # docker build -t film .
 # docker run -d --gpus all --rm -v /mnt/neverland/itzo/frame-interpolation/experiments:/app/experiments -e LABEL=atlas_train_2500_steps_20000 -it film
-# docker run --gpus all --rm -v /mnt/neverland/itzo/frame-interpolation/experiments:/app/experiments -e LABEL=atlas_train_2500_steps_20000 -it film
+# docker run --gpus all --rm -v /mnt/neverland/itzo/frame-interpolation/experiments:/app/experiments -e LABEL=style_plus_feat_loss_1500 -it film

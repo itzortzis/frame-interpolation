@@ -126,7 +126,7 @@ def _distributed_train_step(strategy: tf.distribute.Strategy,
           batch['y']
       )
       
-      loss = tf_loss + feat_loss
+      loss = 0.4 * tf_loss + 0.6 * feat_loss
       
     grads = tape.gradient(loss, model.trainable_variables)
     optimizer.apply_gradients(zip(grads, model.trainable_variables))
